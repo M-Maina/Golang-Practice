@@ -1,11 +1,10 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
-	"io"
 	"log"
 	"net/http"
-	"os"
 )
 
 func main() {
@@ -17,5 +16,23 @@ func main() {
 		log.Fatalf("error: %s", resp.Status)
 	}
 	fmt.Printf("Content-Type: %s\n", resp.Header.Get("Content_Type"))
-	io.Copy(os.Stdout, resp.Body)
+	/*if _, err := io.Copy(os.Stdout, resp.Body); err != nil {
+		log.Fatalf("error: can't copy - %s", err)
+	}
+	*/
+	// []byte, []int, []uint32, []string
+	// ["hi", 7, null]
+	// any (interface)
+	// []any
+	var r Reply
+	dec := json.NewDecoder(resp.Body)
+	if err := dec.Decode(&r); err != nil {
+		log.Fatalf("error: can't decode - %s", err)
+	}
+	fmt.Println(r)
+}
+
+type Reply struct {
+	Name         string
+	Public_Repos int
 }
